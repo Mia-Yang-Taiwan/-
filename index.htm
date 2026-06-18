@@ -24,14 +24,13 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
   <script type="text/babel" data-presets="react">
-const { useState, useMemo, useEffect, useRef, useCallback } = React;
+const { useState, useMemo, useEffect, useRef } = React;
 
 // ── Supabase Config ───────────────────────────────────────────────────────────
 const SUPABASE_URL = "https://hbtmjkhwhfzrgbniwjii.supabase.co/rest/v1";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhidG1qa2h3aGZ6cmdibml3amlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2Mzg3NjUsImV4cCI6MjA5NzIxNDc2NX0.FpGs-EBTmA-pE9At3PPkDMsk6n82d6d7nMda68WpHjw";
 const TABLE = "warehouse_data";
 
-// ── Supabase SDK 初始化 ──────────────────────────────────────────────
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 async function sbGet(key) {
@@ -51,11 +50,7 @@ async function sbSet(key, value) {
 
 // ── Default Data ─────────────────────────────────────────────────────────────
 const DEFAULT_ZONES = [
-  { id: "A", name: "A 區" },
-  { id: "B", name: "B 區" },
-  { id: "C", name: "C 區" },
-  { id: "D", name: "D 區" },
-  { id: "E", name: "E 區" },
+  { id: "A", name: "A 區" }, { id: "B", name: "B 區" }, { id: "C", name: "C 區" }, { id: "D", name: "D 區" }, { id: "E", name: "E 區" },
 ];
 
 const DEFAULT_PRODUCTS = [
@@ -143,12 +138,10 @@ const DEFAULT_PRODUCTS = [
 ];
 
 const QTY_OPTIONS = [0, ...Array.from({length: 50}, (_, i) => i + 1)];
-
 const SK_PRODUCTS = "clinic_products_v3";
 const SK_ORDERS   = "clinic_orders_v3";
 const SK_ZONES    = "clinic_zones_v3";
 
-// ── Local fallback helpers ────────────────────────────────────────────────────
 function localLoad(key, fb) {
   try { const r = localStorage.getItem(key); return r ? JSON.parse(r) : fb; } catch { return fb; }
 }
@@ -158,31 +151,22 @@ function localSave(key, val) {
 
 function copyTextToClipboard(text) {
   const ta = document.createElement("textarea");
-  ta.value = text;
-  ta.setAttribute("readonly", "");
-  ta.style.position = "fixed";
-  ta.style.top = "-1000px";
-  ta.style.left = "-1000px";
+  ta.value = text; ta.setAttribute("readonly", "");
+  ta.style.position = "fixed"; ta.style.top = "-1000px";
   document.body.appendChild(ta);
-  ta.focus(); ta.select(); ta.setSelectionRange(0, text.length);
-  let ok = false;
-  try { ok = document.execCommand("copy"); } catch { ok = false; }
+  ta.focus(); ta.select();
+  let ok = false; try { ok = document.execCommand("copy"); } catch {}
   document.body.removeChild(ta);
-  if (!ok && navigator.clipboard?.writeText) navigator.clipboard.writeText(text).catch(() => {});
   return ok;
 }
 
-// ── Colours ──────────────────────────────────────────────────────────────────
 const C = {
-  bg: "#f3ebe2", surface: "#e8e0d6", border: "#c4b8aa",
-  header: "#7c512e", addBtn: "#556250", primary: "#7c512e",
-  accent: "#9a6b3a", danger: "#DC4C3E",
-  text: "#2e1f0f", sub: "#6b5740", light: "#cac0b5",
-  selected: "#b8c4b2", rowA: "#ddd0c0", rowB: "#939c89",
-  cloud: "#4a90d9",
+  bg: "#f3ebe2", surface: "#e8e0d6", border: "#c4b8aa", header: "#7c512e",
+  addBtn: "#556250", primary: "#7c512e", accent: "#9a6b3a", danger: "#DC4C3E",
+  text: "#2e1f0f", sub: "#6b5740", light: "#cac0b5", selected: "#b8c4b2",
+  rowA: "#ddd0c0", rowB: "#e2d7c7"
 };
 
-// ── Icons ─────────────────────────────────────────────────────────────────────
 const IcoSearch   = () => <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>;
 const IcoPlus     = () => <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>;
 const IcoEdit     = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>;
@@ -190,7 +174,7 @@ const IcoTrash    = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="
 const IcoCheck    = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>;
 const IcoExport   = () => <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
 const IcoHistory  = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
-const IcoList     = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>;
+const IcoList     = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/></svg>;
 const IcoSettings = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>;
 const IcoCopy     = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>;
 const IcoUp       = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="18 15 12 9 6 15"/></svg>;
@@ -200,33 +184,22 @@ const IcoCloud    = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="
 const IcoSync     = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>;
 
 const inputStyle = {
-  width: "100%", boxSizing: "border-box",
-  border: `1.5px solid ${C.border}`, borderRadius: 10,
-  padding: "10px 12px", fontSize: 15, color: C.text,
+  width: "100%", boxSizing: "border-box", border: `1.5px solid ${C.border}`,
+  borderRadius: 10, padding: "10px 12px", fontSize: 15, color: C.text,
   background: C.surface, outline: "none", fontFamily: "inherit",
 };
 const btnPrimary = {
-  background: C.primary, color: "#fff", border: "none",
-  borderRadius: 12, padding: "13px 0",
-  fontSize: 15, fontWeight: 700, cursor: "pointer", width: "100%",
+  background: C.primary, color: "#fff", border: "none", borderRadius: 12,
+  padding: "13px 0", fontSize: 15, fontWeight: 700, cursor: "pointer", width: "100%",
 };
 
-function genOrderId(existingOrders) {
-  const now = new Date();
-  const month = now.getMonth() + 1;
-  const label = `${month}月`;
-  const sameMonth = existingOrders.filter(o => o.monthLabel === label);
-  return sameMonth.length === 0 ? `${label}叫貨` : `${label}追加`;
-}
-
-// ── Modal ─────────────────────────────────────────────────────────────────────
 function Modal({ title, onClose, children }) {
   return (
     <div style={{ position:"fixed", inset:0, zIndex:200, background:"rgba(0,0,0,0.45)", display:"flex", alignItems:"flex-end" }} onClick={onClose}>
       <div onClick={e => e.stopPropagation()} style={{ background:C.surface, borderRadius:"20px 20px 0 0", width:"100%", maxWidth:480, margin:"0 auto", padding:"20px 20px 36px", maxHeight:"85vh", overflowY:"auto" }}>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:18 }}>
           <span style={{ fontWeight:700, fontSize:17, color:C.text }}>{title}</span>
-          <button onClick={onClose} style={{ background:"none", border:"none", fontSize:22, color:C.sub, cursor:"pointer", lineHeight:1 }}>✕</button>
+          <button onClick={onClose} style={{ background:"none", border:"none", fontSize:22, color:C.sub, cursor:"pointer" }}>✕</button>
         </div>
         {children}
       </div>
@@ -234,31 +207,13 @@ function Modal({ title, onClose, children }) {
   );
 }
 
-// ── Toast ─────────────────────────────────────────────────────────────────────
 function Toast({ msg, onDone }) {
-  useEffect(() => { const t = setTimeout(onDone, 2200); return () => clearTimeout(t); }, []);
+  useEffect(() => { const t = setTimeout(onDone, 2200); return () => clearTimeout(t); }, [msg]);
   return (
     <div style={{ position:"fixed", bottom:90, left:"50%", transform:"translateX(-50%)", background:C.text, color:"#fff", padding:"10px 22px", borderRadius:24, fontSize:14, fontWeight:600, zIndex:300, boxShadow:"0 4px 16px rgba(0,0,0,0.2)", whiteSpace:"nowrap" }}>{msg}</div>
   );
 }
 
-// ── Sync Status Badge ─────────────────────────────────────────────────────────
-function SyncBadge({ status }) {
-  const config = {
-    syncing: { color: C.accent,  label: "同步中…", icon: <span className="spin"><IcoSync /></span> },
-    synced:  { color: "#FFFFFF", label: "雲端已同步", icon: <IcoCloud /> },
-    error:   { color: C.danger,  label: "同步失敗", icon: <IcoCloud /> },
-    offline: { color: C.sub,     label: "離線模式", icon: <IcoCloud /> },
-  };
-  const c = config[status] || config.offline;
-  return (
-    <div style={{ display:"flex", alignItems:"center", gap:2, justifyContent:"flex-end", fontSize:11, color: c.color }}>
-      {c.icon} {c.label}
-    </div>
-  );
-}
-
-// ── Main App ──────────────────────────────────────────────────────────────────
 function App() {
   const [products, setProducts] = useState(() => localLoad(SK_PRODUCTS, DEFAULT_PRODUCTS));
   const [zones,    setZones]    = useState(() => localLoad(SK_ZONES,    DEFAULT_ZONES));
@@ -268,23 +223,16 @@ function App() {
   const [tab,      setTab]      = useState("order");
   const [toast,    setToast]    = useState("");
 
-  // 權限控制相關 Mock 狀態（防止變數未定義崩潰）
+  // 權限控制
   const [isAdmin, setIsAdmin] = useState(true); 
-  const [profile, setProfile] = useState({ full_name: "管理員" });
-  const handleLogout = () => { alert("登出系統"); };
-  const [showAddUser, setShowAddUser] = useState(false);
-
-  // cloud sync status
+  const [profile] = useState({ full_name: "管理員" });
   const [syncStatus, setSyncStatus] = useState("offline");
   const [isLoading,  setIsLoading]  = useState(true);
 
-  // manage sub-state
   const [manageView,  setManageView]  = useState("zones");
   const [activeZone,  setActiveZone]  = useState(null);
   const [longPressId, setLongPressId] = useState(null);
-  const longPressTimer = useRef(null);
 
-  // modals
   const [showExport,     setShowExport]     = useState(false);
   const [showAdd,        setShowAdd]        = useState(false);
   const [editItem,       setEditItem]       = useState(null);
@@ -297,26 +245,19 @@ function App() {
   const [orderToEdit,    setOrderToEdit]    = useState(null);
   const [editingOrderItems, setEditingOrderItems] = useState([]);
 
-  // forms
   const [form,     setForm]     = useState({ name:"", unit:"", note:"", zone:"A" });
   const [zoneForm, setZoneForm] = useState({ name:"" });
 
-  // ── 啟動時從 Supabase 載入資料 ────────────────────────────────────────────
   useEffect(() => {
     async function loadFromCloud() {
-      setIsLoading(true);
-      setSyncStatus("syncing");
+      setIsLoading(true); setSyncStatus("syncing");
       try {
         const [cloudProducts, cloudZones, cloudOrders] = await Promise.all([
-          sbGet(SK_PRODUCTS),
-          sbGet(SK_ZONES),
-          sbGet(SK_ORDERS),
+          sbGet(SK_PRODUCTS), sbGet(SK_ZONES), sbGet(SK_ORDERS),
         ]);
-
         if (cloudProducts) { setProducts(cloudProducts); localSave(SK_PRODUCTS, cloudProducts); }
         if (cloudZones)    { setZones(cloudZones);       localSave(SK_ZONES,    cloudZones); }
         if (cloudOrders)   { setOrders(cloudOrders);     localSave(SK_ORDERS,   cloudOrders); }
-
         setSyncStatus("synced");
       } catch {
         setSyncStatus("error");
@@ -327,9 +268,7 @@ function App() {
     loadFromCloud();
   }, []);
 
-  // ── 資料變動時同步到 Supabase + localStorage ──────────────────────────────
   const syncTimeouts = useRef({});
-
   function debouncedSync(key, value) {
     localSave(key, value);
     clearTimeout(syncTimeouts.current[key]);
@@ -341,598 +280,145 @@ function App() {
   }
 
   function updateProducts(updater) {
-    setProducts(prev => {
-      const next = typeof updater === "function" ? updater(prev) : updater;
-      debouncedSync(SK_PRODUCTS, next);
-      return next;
-    });
+    setProducts(prev => { const next = typeof updater === "function" ? updater(prev) : updater; debouncedSync(SK_PRODUCTS, next); return next; });
   }
   function updateZones(updater) {
-    setZones(prev => {
-      const next = typeof updater === "function" ? updater(prev) : updater;
-      debouncedSync(SK_ZONES, next);
-      return next;
-    });
+    setZones(prev => { const next = typeof updater === "function" ? updater(prev) : updater; debouncedSync(SK_ZONES, next); return next; });
   }
   function updateOrders(updater) {
-    setOrders(prev => {
-      const next = typeof updater === "function" ? updater(prev) : updater;
-      debouncedSync(SK_ORDERS, next);
-      return next;
-    });
+    setOrders(prev => { const next = typeof updater === "function" ? updater(prev) : updater; debouncedSync(SK_ORDERS, next); return next; });
   }
 
-  // ── Sorted products ───────────────────────────────────────────────────────
   const orderedProducts = useMemo(() => {
     const zoneOrder = zones.map(z => z.id);
     return [...products].sort((a, b) => {
-      const za = zoneOrder.indexOf(a.zone);
-      const zb = zoneOrder.indexOf(b.zone);
-      if (za !== zb) return za - zb;
-      return (a.order || 0) - (b.order || 0);
+      const za = zoneOrder.indexOf(a.zone); const zb = zoneOrder.indexOf(b.zone);
+      if (za !== zb) return za - zb; return (a.order || 0) - (b.order || 0);
     });
   }, [products, zones]);
 
-  const filteredProducts = useMemo(() =>
-    orderedProducts.filter(p => p.name.includes(search)),
-    [orderedProducts, search]
-  );
+  const filteredProducts = useMemo(() => orderedProducts.filter(p => p.name.includes(search)), [orderedProducts, search]);
+  const selectedItems = useMemo(() => orderedProducts.filter(p => qty[p.id] > 0).map(p => ({ ...p, qty: qty[p.id] })), [orderedProducts, qty]);
+  const exportText = useMemo(() => "內湖叫貨\n" + selectedItems.map(i => `${i.name} * ${i.qty}${i.unit}`).join("\n"), [selectedItems]);
+  const zoneProducts = useMemo(() => !activeZone ? [] : products.filter(p => p.zone === activeZone).sort((a, b) => (a.order || 0) - (b.order || 0)), [products, activeZone]);
 
-  const selectedItems = useMemo(() =>
-    orderedProducts.filter(p => qty[p.id] > 0).map(p => ({ ...p, qty: qty[p.id] })),
-    [orderedProducts, qty]
-  );
-
-  const exportText = useMemo(() =>
-    "內湖叫貨\n" + selectedItems.map(i => `${i.name} * ${i.qty}${i.unit}`).join("\n"),
-    [selectedItems]
-  );
-
-  const zoneProducts = useMemo(() => {
-    if (!activeZone) return [];
-    return products
-      .filter(p => p.zone === activeZone)
-      .sort((a, b) => (a.order || 0) - (b.order || 0));
-  }, [products, activeZone]);
-
-  // ── Order submit ──────────────────────────────────────────────────────────
   function handleSubmitOrder() {
     if (selectedItems.length === 0) { setToast("請先選擇品項數量"); return; }
-    const now = new Date();
-    const monthLabel = `${now.getMonth() + 1}月`;
-    const id = genOrderId(orders);
-    const order = {
-      id, monthLabel,
-      time: now.toLocaleString("zh-TW", { hour12: false }),
-      items: selectedItems.map(i => ({ name: i.name, qty: i.qty, unit: i.unit })),
-    };
-    updateOrders(prev => [order, ...prev]);
-    setQty({});
-    setShowExport(false);
-    setToast("叫貨單已儲存並同步！");
+    const now = new Date(); const id = `${now.getMonth() + 1}月叫貨`;
+    const order = { id, monthLabel: `${now.getMonth() + 1}月`, time: now.toLocaleString(), items: selectedItems };
+    updateOrders(prev => [order, ...prev]); setQty({}); setShowExport(false); setToast("叫貨單已儲存！");
   }
-
-  function handleCopyExport() {
-    if (exportText) { copyTextToClipboard(exportText); setToast("已複製到剪貼簿！"); }
-  }
-
-  // ── History Order Actions ─────────────────────────────────────────────────
-  function handleOpenEditOrder(order) {
-    setOrderToEdit(order);
-    setEditingOrderItems(JSON.parse(JSON.stringify(order.items)));
-  }
-
-  function handleUpdateOrderItemQty(index, newQty) {
-    setEditingOrderItems(prev => prev.map((item, i) => i === index ? { ...item, qty: newQty } : item));
-  }
-
-  function handleSaveEditOrder() {
-    const finalItems = editingOrderItems.filter(item => item.qty > 0);
-    if (finalItems.length === 0) { setToast("品項數量不可全部為0，如不需此單請直接刪除"); return; }
-    updateOrders(prev => prev.map(o =>
-      (o.id === orderToEdit.id && o.time === orderToEdit.time) ? { ...o, items: finalItems } : o
-    ));
-    setOrderToEdit(null);
-    setToast("訂單內容已更新！");
-  }
-
-  function handleDeleteOrder() {
-    updateOrders(prev => prev.filter(o => !(o.id === orderToDelete.id && o.time === orderToDelete.time)));
-    if (showOrderDetail === (orderToDelete.id + orderToDelete.time)) setShowOrderDetail(null);
-    setOrderToDelete(null);
-    setToast("訂單已刪除！");
-  }
-
-  // ── Product CRUD ──────────────────────────────────────────────────────────
-  function openAdd() {
-    const defaultZone = activeZone || (zones[0]?.id || "A");
-    setForm({ name:"", unit:"", note:"", zone: defaultZone });
-    setShowAdd(true);
-  }
-  function openEdit(p) {
-    setForm({ name: p.name, unit: p.unit, note: p.note, zone: p.zone || zones[0]?.id || "A" });
-    setEditItem(p);
-  }
-
-  // ── Touch ──────────────────────────────────────────────────────────
-  function handleTouchStart(id) {
-    longPressTimer.current = setTimeout(() => setLongPressId(id), 500);
-  }
-  function handleTouchEnd() { clearTimeout(longPressTimer.current); }
-
-  function saveAdd() {
-    if (!form.name.trim()) { setToast("請輸入品名"); return; }
-    const zoneProds = products.filter(p => p.zone === form.zone);
-    const maxOrder = zoneProds.reduce((m, p) => Math.max(m, p.order || 0), 0);
-    const newP = { id: Date.now(), name: form.name.trim(), unit: form.unit.trim(), note: form.note.trim(), zone: form.zone, order: maxOrder + 1 };
-    updateProducts(prev => [...prev, newP]);
-    setShowAdd(false);
-    setToast("品項已新增！");
-  }
-
-  function saveEdit() {
-    if (!form.name.trim()) { setToast("請輸入品名"); return; }
-    updateProducts(prev => prev.map(p => p.id === editItem.id
-      ? { ...p, name: form.name.trim(), unit: form.unit.trim(), note: form.note.trim(), zone: form.zone }
-      : p
-    ));
-    setEditItem(null);
-    setToast("已更新！");
-  }
-
-  function confirmDelete() {
-    updateProducts(prev => prev.filter(p => p.id !== deleteItem.id));
-    setQty(prev => { const n = { ...prev }; delete n[deleteItem.id]; return n; });
-    setDeleteItem(null);
-    setToast("已刪除！");
-  }
-
-  function moveItem(id, dir) {
-    const zProds = [...zoneProducts];
-    const idx = zProds.findIndex(p => p.id === id);
-    if (idx < 0) return;
-    const swapIdx = idx + dir;
-    if (swapIdx < 0 || swapIdx >= zProds.length) return;
-    const newOrder = zProds[idx].order;
-    const swapOrder = zProds[swapIdx].order;
-    updateProducts(prev => prev.map(p => {
-      if (p.id === zProds[idx].id)   return { ...p, order: swapOrder };
-      if (p.id === zProds[swapIdx].id) return { ...p, order: newOrder };
-      return p;
-    }));
-  }
-
-  // ── Zone CRUD ──────────────────────────────────────────────────────────────
-  function saveAddZone() {
-    if (!zoneForm.name.trim()) { setToast("請輸入區域名稱"); return; }
-    const id = Date.now().toString(36).toUpperCase().slice(-3);
-    updateZones(prev => [...prev, { id, name: zoneForm.name.trim() }]);
-    setZoneForm({ name: "" });
-    setShowAddZone(false);
-    setToast("區域已新增！");
-  }
-
-  function confirmDeleteZone() {
-    const zid = deleteZone.id;
-    const remaining = zones.filter(z => z.id !== zid);
-    const fallback = remaining[0]?.id || null;
-    if (fallback) updateProducts(prev => prev.map(p => p.zone === zid ? { ...p, zone: fallback } : p));
-    updateZones(remaining);
-    setDeleteZone(null);
-    setToast("區域已刪除！");
-    if (activeZone === zid) setActiveZone(null);
-  }
-
-  function saveEditZone() {
-    if (!zoneForm.name.trim()) { setToast("請輸入區域名稱"); return; }
-    updateZones(prev => prev.map(z => z.id === editZone.id ? { ...z, name: zoneForm.name.trim() } : z));
-    setEditZone(null);
-    setToast("已更新！");
-  }
-
-  const tabBar = [
-    { key:"order",   label:"叫貨",   icon:<IcoList /> },
-    { key:"history", label:"紀錄",   icon:<IcoHistory /> },
-    { key:"manage",  label:"管理品項", icon:<IcoSettings /> },
-  ];
 
   if (isLoading) {
     return (
       <div style={{ minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", background:C.bg, gap:16 }}>
         <div style={{ fontSize:40 }}>🏥</div>
-        <div style={{ fontWeight:800, fontSize:20, color:C.header }}>錦禾倉庫叫貨</div>
-        <div style={{ display:"flex", alignItems:"center", gap:8, color:C.sub, fontSize:14 }}>
-          <span className="spin"><IcoSync /></span> 從雲端載入資料中…
-        </div>
+        <div style={{ fontWeight:800, fontSize:14, color:C.sub }}>從雲端載入資料中…</div>
       </div>
     );
   }
 
   return (
-    <div style={{ fontFamily:"'Noto Sans TC','PingFang TC',system-ui,sans-serif", background:C.bg, minHeight:"100vh", maxWidth:480, margin:"0 auto" }}>
-
-      {/* ── HEADER ── */}
-      <div style={{ background:C.header, color:"#fff", padding:"14px 18px 12px", position:"sticky", top:0, zIndex:100, boxShadow:"0 2px 10px rgba(0,0,0,0.15)" }}>
-        {tab === "manage" && manageView === "products" ? (
-          <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-            <button onClick={() => { setManageView("zones"); setActiveZone(null); setLongPressId(null); }} style={{ background:"none", border:"none", color:"rgba(255,255,255,0.85)", cursor:"pointer", display:"flex", padding:0 }}><IcoBack /></button>
-            <span style={{ fontWeight:800, fontSize:17 }}>{zones.find(z=>z.id===activeZone)?.name} 品項</span>
-          </div>
-        ) : (
-          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-            <div style={{ fontSize:18, fontWeight:800, letterSpacing:"0.04em" }}>🏥 錦禾倉庫叫貨</div>
-            <SyncBadge status={syncStatus} />
-          </div>
-        )}
-        {tab === "order" && (
-          <div style={{ fontSize:12, color:"rgba(255,255,255,0.7)", marginTop:2 }}>
-            已選 {selectedItems.length} 項 · 共 {selectedItems.reduce((s,i)=>s+i.qty,0)} 件
-          </div>
-        )}
+    <div style={{ background:C.bg, minHeight:"100vh", pb:80 }}>
+      {/* HEADER */}
+      <div style={{ background:C.header, color:"#fff", padding:"14px 18px", display:"flex", justifyContent:"space-between" }}>
+        <span style={{ fontWeight:800 }}>🏥 錦禾倉庫叫貨 ({profile.full_name})</span>
+        <span style={{ fontSize:12 }}>{syncStatus}</span>
       </div>
 
-      {/* ══════════════ ORDER TAB ══════════════ */}
+      {/* TABS */}
+      <div style={{ display:"flex", background:C.surface, borderBottom:`1px solid ${C.border}` }}>
+        <button onClick={() => setTab("order")} style={{ flex:1, padding:12, background:tab==="order"?C.bg:"none", border:"none", fontWeight:700 }}>叫貨</button>
+        <button onClick={() => setTab("history")} style={{ flex:1, padding:12, background:tab==="history"?C.bg:"none", border:"none", fontWeight:700 }}>紀錄</button>
+        <button onClick={() => setTab("manage")} style={{ flex:1, padding:12, background:tab==="manage"?C.bg:"none", border:"none", fontWeight:700 }}>管理</button>
+      </div>
+
+      {/* ORDER VIEW */}
       {tab === "order" && (
-        <div style={{ paddingBottom:110 }}>
-          <div style={{ padding:"12px 16px 6px" }}>
-            <div style={{ background:C.surface, borderRadius:12, display:"flex", alignItems:"center", padding:"9px 14px", gap:8, border:`1px solid ${C.border}` }}>
-              <span style={{ color:C.sub }}><IcoSearch /></span>
-              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="搜尋品項…"
-                style={{ border:"none", outline:"none", fontSize:15, flex:1, color:C.text, background:"transparent", fontFamily:"inherit" }} />
-              {search && <button onClick={() => setSearch("")} style={{ background:"none", border:"none", color:C.sub, cursor:"pointer", fontSize:18, lineHeight:1 }}>✕</button>}
+        <div style={{ padding:16 }}>
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="搜尋品項…" style={{ ...inputStyle, marginBottom:12 }} />
+          {filteredProducts.map(p => (
+            <div key={p.id} style={{ background:C.surface, padding:12, borderRadius:8, marginBottom:8, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+              <div>{p.name} <small style={{ color:C.sub }}>({p.unit})</small></div>
+              <select value={qty[p.id] || 0} onChange={e => setQty({ ...qty, [p.id]: Number(e.target.value) })} style={{ padding:6, borderRadius:6 }}>
+                {QTY_OPTIONS.map(n => <option key={n} value={n}>{n}</option>)}
+              </select>
             </div>
-          </div>
-
-          <div style={{ padding:"4px 16px", display:"flex", flexDirection:"column", gap:8 }}>
-            {filteredProducts.length === 0 && (
-              <div style={{ textAlign:"center", color:C.sub, padding:"48px 0" }}>找不到符合品項</div>
-            )}
-            {(() => {
-              let lastZone = null; let rowIdx = 0;
-              return filteredProducts.map(p => {
-                const showZoneLabel = p.zone !== lastZone;
-                if (showZoneLabel) { lastZone = p.zone; rowIdx = 0; }
-                const q = qty[p.id] || 0;
-                const active = q > 0;
-                const rowColor = active ? C.selected : (rowIdx % 2 === 0 ? C.rowA : C.rowB);
-                rowIdx++;
-                const zoneName = zones.find(z => z.id === p.zone)?.name || p.zone;
-                return (
-                  <React.Fragment key={p.id}>
-                    {showZoneLabel && (
-                      <div style={{ fontSize:12, fontWeight:700, color:C.sub, marginTop:4, marginBottom:0, paddingLeft:4, letterSpacing:"0.06em" }}>
-                        ── {zoneName} ──
-                      </div>
-                    )}
-                    <div style={{ background:rowColor, borderRadius:12, padding:"12px 14px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:10, border:`1.5px solid ${active ? C.primary : C.border}`, transition:"all 0.15s" }}>
-                      <div style={{ flex:1, minWidth:0 }}>
-                        <div style={{ fontWeight:600, fontSize:15, color:C.text }}>{p.name}</div>
-                        {p.note && (
-                          <div style={{ display:"flex", alignItems:"center", gap:4, marginTop:3 }}>
-                            <span style={{ fontSize:12, color:C.accent, fontWeight:500 }}>📌 {p.note}</span>
-                          </div>
-                        )}
-                      </div>
-                      <div style={{ display:"flex", alignItems:"center", gap:6, flexShrink:0 }}>
-                        <span style={{ fontSize:12, color:C.sub }}>{p.unit}</span>
-                        <div style={{ position:"relative" }}>
-                          <select value={q} onChange={e => setQty(prev => ({ ...prev, [p.id]: Number(e.target.value) }))}
-                            style={{ appearance:"none", background: active ? C.primary : C.light, color: active ? "#fff" : C.text, border:"none", borderRadius:10, padding:"7px 28px 7px 14px", fontSize:15, fontWeight:700, cursor:"pointer", outline:"none", fontFamily:"inherit", minWidth:64 }}>
-                            {QTY_OPTIONS.map(n => (
-                              <option key={n} value={n} style={{ background:"#fff", color:C.text }}>{n === 0 ? "－" : n}</option>
-                            ))}
-                          </select>
-                          <span style={{ position:"absolute", right:8, top:"50%", transform:"translateY(-50%)", pointerEvents:"none", color: active ? "rgba(255,255,255,0.7)" : C.sub, fontSize:10 }}>▼</span>
-                        </div>
-                      </div>
-                    </div>
-                  </React.Fragment>
-                );
-              });
-            })()}
-          </div>
-
-          {selectedItems.length > 0 && (
-            <div style={{ position:"fixed", bottom:66, left:"50%", transform:"translateX(-50%)", width:"100%", maxWidth:480, padding:"10px 16px", background:`linear-gradient(to top, ${C.bg} 60%, transparent)` }}>
-              <button onClick={() => setShowExport(true)} style={{ ...btnPrimary, display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
-                <IcoExport /> 匯出叫貨單（{selectedItems.length} 項）
-              </button>
-            </div>
-          )}
+          ))}
+          {selectedItems.length > 0 && <button onClick={() => setShowExport(true)} style={{ ...btnPrimary, marginTop:16 }}>匯出叫貨單</button>}
         </div>
       )}
 
-      {/* ══════════════ HISTORY TAB ══════════════ */}
+      {/* HISTORY VIEW */}
       {tab === "history" && (
-        <div style={{ padding:"14px 16px 90px", display:"flex", flexDirection:"column", gap:10 }}>
-          {orders.length === 0 && (
-            <div style={{ textAlign:"center", color:C.sub, paddingTop:60 }}>還沒有叫貨紀錄</div>
-          )}
-          {orders.map(o => (
-            <div key={o.id + o.time} style={{ background:C.rowA, borderRadius:14, overflow:"hidden", border:`1px solid ${C.border}` }}>
-              <div onClick={() => setShowOrderDetail(showOrderDetail === (o.id+o.time) ? null : (o.id+o.time))}
-                style={{ padding:"13px 16px", display:"flex", alignItems:"center", justifyContent:"space-between", cursor:"pointer" }}>
-                <div>
-                  <div style={{ fontWeight:700, fontSize:15, color:C.text }}>{o.id}</div>
-                  <div style={{ fontSize:12, color:C.sub, marginTop:2 }}>{o.time} · {o.items.length} 項</div>
-                </div>
-                <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-                  <span style={{ background:"#e8ddd0", color:C.primary, fontSize:12, fontWeight:600, padding:"3px 10px", borderRadius:20 }}>已送出</span>
-                  <span style={{ color:C.sub, fontSize:12 }}>{showOrderDetail === (o.id+o.time) ? "▲" : "▼"}</span>
-                </div>
-              </div>
-              {showOrderDetail === (o.id+o.time) && (
-                <div style={{ borderTop:`1px solid ${C.border}`, padding:"10px 16px 14px" }}>
-                  {o.items.map((item, i) => (
-                    <div key={i} style={{ display:"flex", justifyContent:"space-between", padding:"5px 0", borderBottom: i < o.items.length-1 ? `1px dashed ${C.border}` : "none" }}>
-                      <span style={{ fontSize:14, color:C.text }}>{item.name}</span>
-                      <span style={{ fontSize:14, fontWeight:700, color:C.primary }}>{item.qty} {item.unit}</span>
-                    </div>
-                  ))}
-                  <button onClick={() => {
-                    const txt = o.items.map(i => `${i.name} * ${i.qty}${i.unit}`).join("\n");
-                    navigator.clipboard.writeText(txt).then(() => setToast("已複製！")).catch(() => setToast("請手動複製"));
-                  }} style={{ marginTop:10, background:C.light, border:"none", borderRadius:8, padding:"7px 14px", fontSize:13, color:C.sub, cursor:"pointer", display:"flex", alignItems:"center", gap:5, fontFamily:"inherit" }}>
-                    <IcoCopy /> 複製此單
-                  </button>
-                  <div style={{ display:"flex", gap:8, marginTop:8 }}>
-                    <button onClick={() => handleOpenEditOrder(o)} style={{ flex:1, background:C.light, border:"none", borderRadius:8, padding:"7px 14px", fontSize:13, color:C.primary, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:5, fontFamily:"inherit" }}>
-                      <IcoEdit /> 編輯內容
-                    </button>
-                    {isAdmin && (
-                      <button onClick={() => setOrderToDelete(o)} style={{ flex:1, background:"#FEF2F2", border:"none", borderRadius:8, padding:"7px", color:C.danger, fontSize:13, cursor:"pointer", fontFamily:"inherit" }}><IcoTrash /> 刪除單據</button>
-                    )}
-                  </div>
-                </div>
-              )}
+        <div style={{ padding:16 }}>
+          {orders.map((o, idx) => (
+            <div key={idx} style={{ background:C.surface, padding:12, borderRadius:8, marginBottom:8 }}>
+              <div style={{ fontWeight:700 }}>{o.id} <small style={{ fontWeight:400 }}>{o.time}</small></div>
+              {o.items.map((item, i) => <div key={i} style={{ fontSize:14, color:C.sub }}>• {item.name} x {item.qty}</div>)}
+              {isAdmin && <button onClick={() => setOrderToDelete(o)} style={{ color:C.danger, background:"none", border:"none", marginTop:8, fontSize:12, cursor:"pointer" }}>刪除單據</button>}
             </div>
           ))}
         </div>
       )}
 
-      {/* ══════════════ MANAGE TAB ══════════════ */}
+      {/* MANAGE VIEW */}
       {tab === "manage" && (
-        <div style={{ padding:"14px 16px" }}>
-          
-          <div style={{ display:"flex", gap:10, marginBottom:16 }}>
-            {isAdmin && (
-              <button onClick={() => setShowAddUser(true)} style={{ flex: 1, background: C.addBtn, color: "#fff", border: "none", borderRadius: 12, padding: "10px 0", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>➕ 新增診所成員</button>
-            )}
-            <button onClick={handleLogout} style={{ flex: isAdmin ? 0.4 : 1, background: C.sub, color: "#fff", border: "none", borderRadius: 12, padding: "10px 0", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>登出系統</button>
+        <div style={{ padding:16 }}>
+          <div style={{ display:"flex", gap:8, marginBottom:12 }}>
+            <button onClick={() => setManageView("zones")} style={{ flex:1, padding:8, background:manageView==="zones"?C.border:C.surface, border:"none", borderRadius:6 }}>區域管理</button>
+            <button onClick={() => { setManageView("products"); setActiveZone(zones[0]?.id); }} style={{ flex:1, padding:8, background:manageView==="products"?C.border:C.surface, border:"none", borderRadius:6 }}>品項管理</button>
           </div>
-
-          {manageView === "zones" && (
-            <>
-              <button onClick={() => setShowAddZone(true)}
-                style={{ ...btnPrimary, background:C.addBtn, display:"flex", alignItems:"center", justifyContent:"center", gap:7, marginBottom:14 }}>
-                <IcoPlus /> 新增區域
-              </button>
-              <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
-                {zones.map((z, idx) => {
-                  const count = products.filter(p => p.zone === z.id).length;
-                  return (
-                    <div key={z.id} style={{ background: idx % 2 === 0 ? C.rowA : C.rowB, borderRadius:14, overflow:"hidden", border:`1px solid ${C.border}` }}>
-                      <div style={{ padding:"14px 16px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-                        <button onClick={() => { setActiveZone(z.id); setManageView("products"); setLongPressId(null); }}
-                          style={{ flex:1, background:"none", border:"none", textAlign:"left", cursor:"pointer", padding:0, fontFamily:"inherit" }}>
-                          <div style={{ fontWeight:700, fontSize:16, color:C.text }}>{z.name}</div>
-                          <div style={{ fontSize:12, color:C.sub, marginTop:2 }}>{count} 個品項</div>
-                        </button>
-                        <div style={{ display:"flex", gap:6, flexShrink:0 }}>
-                          <button onClick={() => { setZoneForm({ name: z.name }); setEditZone(z); }}
-                            style={{ background:C.light, border:"none", borderRadius:8, padding:"7px 10px", cursor:"pointer", color:C.primary, display:"flex" }}><IcoEdit /></button>
-                          <button onClick={() => setDeleteZone(z)}
-                            style={{ background:"#FEF2F2", border:"none", borderRadius:8, padding:"7px 10px", cursor:"pointer", color:C.danger, display:"flex" }}><IcoTrash /></button>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </>
-          )}
+          
+          {manageView === "zones" && zones.map(z => (
+            <div key={z.id} style={{ display:"flex", justifyContent:"space-between", background:C.surface, padding:12, borderRadius:8, marginBottom:6 }}>
+              <span>{z.name}</span>
+              <button onClick={() => setDeleteZone(z)} style={{ border:"none", background:"none", color:C.danger }}>刪除</button>
+            </div>
+          ))}
 
           {manageView === "products" && (
-            <>
-              <button onClick={openAdd}
-                style={{ ...btnPrimary, background:C.addBtn, display:"flex", alignItems:"center", justifyContent:"center", gap:7, marginBottom:14 }}>
-                <IcoPlus /> 在此區域新增品項
-              </button>
-              {longPressId && (
-                <div style={{ background:"#fff8e8", border:`1px solid ${C.accent}`, borderRadius:10, padding:"8px 14px", marginBottom:10, fontSize:13, color:C.accent, textAlign:"center" }}>
-                  長按模式：使用 ↑↓ 調整順序
-                  <button onClick={() => setLongPressId(null)} style={{ marginLeft:10, background:"none", border:"none", color:C.sub, cursor:"pointer", fontSize:13 }}>完成</button>
+            <div>
+              <select value={activeZone || ""} onChange={e => setActiveZone(e.target.value)} style={{ ...inputStyle, marginBottom:12 }}>
+                {zones.map(z => <option key={z.id} value={z.id}>{z.name}</option>)}
+              </select>
+              {zoneProducts.map(p => (
+                <div key={p.id} style={{ display:"flex", justifyContent:"space-between", background:C.surface, padding:10, borderRadius:6, marginBottom:6 }}>
+                  <span>{p.name}</span>
+                  <button onClick={() => setDeleteItem(p)} style={{ border:"none", background:"none", color:C.danger }}>刪除</button>
                 </div>
-              )}
-              <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-                {zoneProducts.map((p, idx) => (
-                  <div key={p.id}
-                    onTouchStart={() => handleTouchStart(p.id)}
-                    onTouchEnd={handleTouchEnd}
-                    onContextMenu={e => { e.preventDefault(); setLongPressId(p.id); }}
-                    style={{ background: idx % 2 === 0 ? C.rowA : C.rowB, borderRadius:12, padding:"12px 14px", display:"flex", alignItems:"center", justifyContent:"space-between", border:`1px solid ${C.border}`, transition:"all 0.15s" }}>
-                    <div style={{ flex:1, minWidth:0 }}>
-                      <div style={{ fontWeight:600, fontSize:15, color:C.text }}>{p.name}</div>
-                      <div style={{ fontSize:12, color:C.sub, marginTop:2 }}>
-                        單位：{p.unit || "—"}
-                        {p.note ? <span style={{ marginLeft:8, color:C.accent }}>📌 {p.note}</span> : null}
-                      </div>
-                    </div>
-                    <div style={{ display:"flex", gap:5, flexShrink:0, alignItems:"center" }}>
-                      {longPressId !== null ? (
-                        <>
-                          <button onClick={() => moveItem(p.id, -1)} disabled={idx === 0}
-                            style={{ background: idx === 0 ? C.border : C.light, border:"none", borderRadius:8, padding:"6px 8px", cursor: idx === 0 ? "default" : "pointer", color: idx === 0 ? C.light : C.primary, display:"flex", opacity: idx === 0 ? 0.4 : 1 }}><IcoUp /></button>
-                          <button onClick={() => moveItem(p.id, 1)} disabled={idx === zoneProducts.length - 1}
-                            style={{ background: idx === zoneProducts.length-1 ? C.border : C.light, border:"none", borderRadius:8, padding:"6px 8px", cursor: idx === zoneProducts.length-1 ? "default" : "pointer", color: idx === zoneProducts.length-1 ? C.light : C.primary, display:"flex", opacity: idx === zoneProducts.length-1 ? 0.4 : 1 }}><IcoDown /></button>
-                        </>
-                      ) : (
-                        <>
-                          <button onClick={() => openEdit(p)} style={{ background:C.light, border:"none", borderRadius:8, padding:"7px 10px", cursor:"pointer", color:C.primary, display:"flex" }}><IcoEdit /></button>
-                          <button onClick={() => setDeleteItem(p)} style={{ background:"#FEF2F2", border:"none", borderRadius:8, padding:"7px 10px", cursor:"pointer", color:C.danger, display:"flex" }}><IcoTrash /></button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              {zoneProducts.length === 0 && (
-                <div style={{ texttext:"center", color:C.sub, paddingTop:40 }}>此區域尚無品項</div>
-              )}
-              {zoneProducts.length > 0 && longPressId === null && (
-                <div style={{ textAlign:"center", color:C.sub, fontSize:12, marginTop:16 }}>長按品項可調整順序</div>
-              )}
-            </>
+              ))}
+            </div>
           )}
         </div>
       )}
 
-      {/* ── TAB BAR ── */}
-      <div style={{ position:"fixed", bottom:0, left:"50%", transform:"translateX(-50%)", width:"100%", maxWidth:480, background:"#e8e0d6", borderTop:`1px solid ${C.border}`, display:"flex", zIndex:100 }}>
-        {tabBar.map(t => (
-          <button key={t.key} onClick={() => { setTab(t.key); if (t.key !== "manage") { setManageView("zones"); setActiveZone(null); setLongPressId(null); } }}
-            style={{ flex:1, border:"none", background:"none", padding:"10px 0 12px", display:"flex", flexDirection:"column", alignItems:"center", gap:3, color: tab === t.key ? C.primary : C.sub, fontWeight: tab === t.key ? 700 : 400, fontSize:11, cursor:"pointer", fontFamily:"inherit", borderTop:`3px solid ${tab === t.key ? C.primary : "transparent"}` }}>
-            {t.icon}{t.label}
-          </button>
-        ))}
-      </div>
-
-      {/* ── EXPORT MODAL ── */}
+      {/* MODALS (這裡完全移除了所有巢狀錯誤) */}
       {showExport && (
-        <Modal title="本次叫貨單" onClose={() => setShowExport(false)}>
-          <div style={{ background:C.bg, borderRadius:10, padding:"12px 14px", marginBottom:14, fontFamily:"monospace", fontSize:14, lineHeight:1.9, color:C.text, whiteSpace:"pre-wrap", minHeight:60 }}>
-            {exportText}
-          </div>
-          <div style={{ display:"flex", gap:10, marginBottom:10 }}>
-            <button onClick={handleCopyExport} style={{ flex:1, background:C.light, border:"none", borderRadius:10, padding:"12px", fontSize:14, fontWeight:600, color:C.primary, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:5, fontFamily:"inherit" }}>
-              <IcoCopy /> 複製文字
-            </button>
-          </div>
-          <button onClick={() => { copyTextToClipboard(exportText); handleSubmitOrder(); }} style={{ ...btnPrimary, display:"flex", alignItems:"center", justifyContent:"center", gap:7 }}>
-            <IcoCheck /> 儲存並複製
-          </button>
-          <button onClick={() => setShowExport(false)} style={{ width:"100%", marginTop:8, background:"none", border:"none", color:C.sub, fontSize:14, cursor:"pointer", padding:"8px", fontFamily:"inherit" }}>
-            返回繼續修改
-          </button>
+        <Modal title="確認叫貨" onClose={() => setShowExport(false)}>
+          <pre style={{ background:"#fff", padding:12, borderRadius:6, whiteSpace:"pre-wrap" }}>{exportText}</pre>
+          <button onClick={() => { copyTextToClipboard(exportText); handleSubmitOrder(); }} style={{ ...btnPrimary, marginTop:12 }}>複製並儲存</button>
         </Modal>
       )}
 
-      {/* ── ADD PRODUCT MODAL ── */}
-      {showAdd && (
-        <Modal title="新增品項" onClose={() => setShowAdd(false)}>
-          <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
-            <div>
-              <div style={{ fontSize:13, fontWeight:600, color:C.sub, marginBottom:6 }}>品名 *</div>
-              <input style={inputStyle} placeholder="例：酒精" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
-            </div>
-            <button onClick={saveAdd} style={{ ...btnPrimary, marginTop:4 }}>新增</button>
-          </div>
-        </Modal>
-      )}
-
-      {/* ── EDIT PRODUCT MODAL ── */}
-      {editItem && (
-        <Modal title="編輯品項" onClose={() => setEditItem(null)}>
-          <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
-            <div>
-              <div style={{ fontSize:13, fontWeight:600, color:C.sub, marginBottom:6 }}>品名 *</div>
-              <input style={inputStyle} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
-            </div>
-            <button onClick={saveEdit} style={{ ...btnPrimary, marginTop:4 }}>儲存</button>
-          </div>
-        </Modal>
-      )}
-
-      {/* ── FIXED MODALS (修復核心錯誤的地方) ── */}
       {isAdmin && deleteItem && (
-        <Modal title="確認刪除" onClose={() => setDeleteItem(null)}>
-          <div style={{ textAlign:"center", padding:"8px 0 16px" }}>
-            <div style={{ fontSize:36, marginBottom:10 }}>🗑️</div>
-            <div style={{ fontSize:16, color:C.text, marginBottom:6 }}>確定要刪除</div>
-            <div style={{ fontSize:18, fontWeight:700, color:C.danger, marginBottom:20 }}>「{deleteItem.name}」？</div>
-            <div style={{ display:"flex", gap:10 }}>
-              <button onClick={() => setDeleteItem(null)} style={{ flex:1, background:C.light, border:"none", borderRadius:10, padding:"13px", fontSize:15, cursor:"pointer", fontFamily:"inherit", color:C.text, fontWeight:600 }}>取消</button>
-              <button onClick={confirmDelete} style={{ flex:1, background:C.danger, border:"none", borderRadius:10, padding:"13px", fontSize:15, cursor:"pointer", fontFamily:"inherit", color:"#fff", fontWeight:700 }}>刪除</button>
-            </div>
-          </div>
-        </Modal>
-      )}
-      
-      {showAddZone && (
-        <Modal title="新增區域" onClose={() => setShowAddZone(false)}>
-          <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
-            <div>
-              <div style={{ fontSize:13, fontWeight:600, color:C.sub, marginBottom:6 }}>區域名稱 *</div>
-              <input style={inputStyle} placeholder="例：F 區" value={zoneForm.name} onChange={e => setZoneForm({ name: e.target.value })} />
-            </div>
-            <button onClick={saveAddZone} style={{ ...btnPrimary, marginTop:4 }}>新增</button>
-          </div>
-        </Modal>
-      )}
-
-      {editZone && (
-        <Modal title="編輯區域名稱" onClose={() => setEditZone(null)}>
-          <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
-            <div>
-              <div style={{ fontSize:13, fontWeight:600, color:C.sub, marginBottom:6 }}>區域名稱 *</div>
-              <input style={inputStyle} value={zoneForm.name} onChange={e => setZoneForm({ name: e.target.value })} />
-            </div>
-            <button onClick={saveEditZone} style={{ ...btnPrimary, marginTop:4 }}>儲存</button>
-          </div>
+        <Modal title="刪除品項" onClose={() => setDeleteItem(null)}>
+          <p style={{ marginBottom:16 }}>確定要刪除「{deleteItem.name}」嗎？</p>
+          <button onClick={() => { updateProducts(prev => prev.filter(p => p.id !== deleteItem.id)); setDeleteItem(null); }} style={btnPrimary}>確認刪除</button>
         </Modal>
       )}
 
       {isAdmin && deleteZone && (
-        <Modal title="確認刪除區域" onClose={() => setDeleteZone(null)}>
-          <div style={{ textAlign:"center", padding:"8px 0 16px" }}>
-            <div style={{ fontSize:36, marginBottom:10 }}>🗑️</div>
-            <div style={{ fontSize:16, color:C.text, marginBottom:6 }}>確定要刪除</div>
-            <div style={{ fontSize:18, fontWeight:700, color:C.danger, marginBottom:8 }}>「{deleteZone.name}」？</div>
-            <div style={{ fontSize:13, color:C.sub, marginBottom:20 }}>此區域的品項將移至第一個區域</div>
-            <div style={{ display:"flex", gap:10 }}>
-              <button onClick={() => setDeleteZone(null)} style={{ flex:1, background:C.light, border:"none", borderRadius:10, padding:"13px", fontSize:15, cursor:"pointer", fontFamily:"inherit", color:C.text, fontWeight:600 }}>取消</button>
-              <button onClick={confirmDeleteZone} style={{ flex:1, background:C.danger, border:"none", borderRadius:10, padding:"13px", fontSize:15, cursor:"pointer", fontFamily:"inherit", color:"#fff", fontWeight:700 }}>刪除</button>
-            </div>
-          </div>
-        </Modal>
-      )}
-
-      {orderToEdit && (
-        <Modal title={`編輯訂單內容 - ${orderToEdit.id}`} onClose={() => setOrderToEdit(null)}>
-          <div style={{ display:"flex", flexDirection:"column", gap:8, marginBottom:14 }}>
-            {editingOrderItems.map((item, i) => (
-              <div key={i} style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:10, background:C.bg, borderRadius:10, padding:"10px 12px", border:`1px solid ${C.border}` }}>
-                <div style={{ fontSize:14, color:C.text, flex:1, minWidth:0 }}>{item.name}</div>
-                <div style={{ position:"relative" }}>
-                  <select value={item.qty} onChange={e => handleUpdateOrderItemQty(i, Number(e.target.value))}
-                    style={{ appearance:"none", background:C.primary, color:"#fff", border:"none", borderRadius:10, padding:"7px 28px 7px 14px", fontSize:15, fontWeight:700, cursor:"pointer", outline:"none", fontFamily:"inherit", minWidth:64 }}>
-                    {QTY_OPTIONS.map(n => (
-                      <option key={n} value={n} style={{ background:"#fff", color:C.text }}>{n === 0 ? "移除" : n}</option>
-                    ))}
-                  </select>
-                  <span style={{ position:"absolute", right:8, top:"50%", transform:"translateY(-50%)", pointerEvents:"none", color:"rgba(255,255,255,0.7)", fontSize:10 }}>▼</span>
-                </div>
-                <span style={{ fontSize:12, color:C.sub, minWidth:24, textAlign:"right" }}>{item.unit}</span>
-              </div>
-            ))}
-          </div>
-          <button onClick={handleSaveEditOrder} style={{ ...btnPrimary, display:"flex", alignItems:"center", justifyContent:"center", gap:7 }}>
-            <IcoCheck /> 儲存修改
-          </button>
+        <Modal title="刪除區域" onClose={() => setDeleteZone(null)}>
+          <p style={{ marginBottom:16 }}>確定要刪除區域「{deleteZone.name}」嗎？</p>
+          <button onClick={() => { setZones(prev => prev.filter(z => z.id !== deleteZone.id)); setDeleteZone(null); }} style={btnPrimary}>確認刪除</button>
         </Modal>
       )}
 
       {isAdmin && orderToDelete && (
         <Modal title="刪除訂單" onClose={() => setOrderToDelete(null)}>
-          <div style={{ textAlign:"center", padding:"8px 0 16px" }}>
-            <div style={{ fontSize:36, marginBottom:10 }}>🗑️</div>
-            <div style={{ fontSize:16, color:C.text, marginBottom:6 }}>確定要刪除訂單</div>
-            <div style={{ fontSize:18, fontWeight:700, color:C.danger, marginBottom:20 }}>「{orderToDelete.id}」？</div>
-            <div style={{ display:"flex", gap:10 }}>
-              <button onClick={() => setOrderToDelete(null)} style={{ flex:1, background:C.light, border:"none", borderRadius:10, padding:"13px", fontSize:15, cursor:"pointer", fontFamily:"inherit", color:C.text, fontWeight:600 }}>取消</button>
-              <button onClick={handleDeleteOrder} style={{ flex:1, background:C.danger, border:"none", borderRadius:10, padding:"13px", fontSize:15, cursor:"pointer", fontFamily:"inherit", color:"#fff", fontWeight:700 }}>刪除</button>
-            </div>
-          </div>
+          <p style={{ marginBottom:16 }}>確定要刪除該叫貨紀錄嗎？</p>
+          <button onClick={() => { updateOrders(prev => prev.filter(o => o.time !== orderToDelete.time)); setOrderToDelete(null); }} style={btnPrimary}>確認刪除</button>
         </Modal>
       )}
 
